@@ -136,7 +136,7 @@ python tools/eval_flow_reconstruct_mel.py \
 2. 使用 `tools/extract_speech_token_s3.py` + `tools/make_parquet_list.py` 准备 `train.data.list` / `dev.data.list`。
 3. 最后跑 `examples/train_flow_officialinit_causal_example.sh` 启动 Flow 训练。
 
-说明：`scripts/host/run_cosyvoice1_flow_aishell_s3.sh` 更像“历史实验的一键脚本模板”，包含较多硬编码路径。新环境复现时建议按上面 1→2→3 拆步执行，问题更容易定位。
+说明：`scripts/host/run_cosyvoice1_flow_aishell_s3.sh` 是“从数据准备到 Flow 启动”的一键脚本，包含较多硬编码路径。若在不同机器复现，建议按上面 1→2→3 拆步执行，路径与报错更容易定位。
 
 ---
 
