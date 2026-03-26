@@ -47,7 +47,10 @@ pip install -r requirements-infer.txt
 
 ## 准备权重（必须）
 
-1. 将 **`campplus.onnx`**、**`hift.pt`** 放入 `pretrained_weights/CosyVoice-300M/`（可从 Hugging Face `FunAudioLLM/CosyVoice-300M` 下载整目录，见 `pretrained_weights/README.md`）。
+1. **`campplus.onnx`**、**`hift.pt`** 请从官方 **CosyVoice-300M** 仓库自行下载，放入 `pretrained_weights/CosyVoice-300M/`（与 token 无关，不必随本仓库分发）：
+   - [campplus.onnx](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/campplus.onnx)
+   - [hift.pt](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/hift.pt)  
+   仓库首页（可一次拉整包）：[FunAudioLLM/CosyVoice-300M](https://huggingface.co/FunAudioLLM/CosyVoice-300M)。命令行见 [`pretrained_weights/README.md`](pretrained_weights/README.md)。
 2. 将 **自训 S3 tokenizer** 导出文件命名为 **`pretrained_weights/s3tokenizer.pt`**（或任意路径 + 环境变量 `COSYVOICE_S3_TOKENIZER_PT`）。
 3. 将 **Flow** 的 `epoch_*_whole.pt` 放入 **`pretrained_weights/flow_torch_ddp/`**（可多个；脚本默认选**最大 epoch**）。
 

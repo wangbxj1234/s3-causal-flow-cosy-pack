@@ -11,7 +11,16 @@
 
 ## 2. CosyVoice-300M 附属（声码器 + 说话人，与 token 语义无关）
 
-从 [FunAudioLLM/CosyVoice-300M](https://huggingface.co/FunAudioLLM/CosyVoice-300M) 下载后，放入：
+从官方仓库下载下列文件（**直链为 Hugging Face 文件页**，页面上可下载或复制直链）：
+
+| 文件 | 说明 |
+|------|------|
+| [campplus.onnx](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/campplus.onnx) | 说话人 embedding（ONNX） |
+| [hift.pt](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/hift.pt) | HiFT 声码器 |
+
+仓库总览：[FunAudioLLM/CosyVoice-300M](https://huggingface.co/FunAudioLLM/CosyVoice-300M)。
+
+放入本仓库的目录结构：
 
 ```
 pretrained_weights/CosyVoice-300M/
