@@ -1,44 +1,36 @@
-# 权重放置说明（推理必需）
+# pretrained_weights 说明
 
-本目录**默认不上传大文件**。按下列结构放入你从 Google Drive / Hugging Face 下载的文件后即可运行 `tools/` 下脚本。
+推理最少需要 5 个文件：
 
-## 1. 自训链路（1024 词表 / 25 Hz + S3）
+1. `s3tokenizer.pt`
+2. `flow_torch_ddp/epoch_199_whole.pt`
+3. `conf/cosyvoice_aishell_s3tok1024_25hz.yaml`
+4. `CosyVoice-300M/campplus.onnx`
+5. `CosyVoice-300M/hift.pt`
 
-| 路径 | 内容 |
-|------|------|
-| `s3tokenizer.pt` | 与训练一致的 S3Tokenizer 导出（`torch.load` 含 `config` + `model`） |
-| `flow_torch_ddp/epoch_*_whole.pt` | 自训 Flow 检查点（至少放一个；脚本会取目录下**最大** epoch 号） |
+## A) 你们公开 Google Drive（核心 3 件）
 
-## 2. CosyVoice-300M 附属（声码器 + 说话人，与 token 语义无关）
+- Drive: [s3_causal_flow folder](https://drive.google.com/drive/folders/1KwHVm4fNiKRTt-LqZrDkDSN9k9hEgC4B?usp=drive_link)
 
-从官方仓库下载下列文件（**直链为 Hugging Face 文件页**，页面上可下载或复制直链）：
+请映射为：
 
-| 文件 | 说明 |
-|------|------|
-| [campplus.onnx](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/campplus.onnx) | 说话人 embedding（ONNX） |
-| [hift.pt](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/hift.pt) | HiFT 声码器 |
+- `s3tokenizer_export_epoch15.pt` -> `pretrained_weights/s3tokenizer.pt`
+- `epoch_199_whole.pt` -> `pretrained_weights/flow_torch_ddp/epoch_199_whole.pt`
+- `cosyvoice_aishell_s3tok1024_25hz.yaml` -> `conf/cosyvoice_aishell_s3tok1024_25hz.yaml`
 
-仓库总览：[FunAudioLLM/CosyVoice-300M](https://huggingface.co/FunAudioLLM/CosyVoice-300M)。
+`epoch_199_whole.yaml` 是可选记录文件，不是推理硬依赖。
 
-放入本仓库的目录结构：
+## B) Hugging Face（附属 2 件）
 
-```
+- [campplus.onnx](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/campplus.onnx)
+- [hift.pt](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/hift.pt)
+
+下载后放入：
+
+```text
 pretrained_weights/CosyVoice-300M/
   campplus.onnx
   hift.pt
 ```
 
-（可选）若要用 **`--preset official_cosyvoice1_50hz`** 做官方对比，同一目录还需：
-
-- `flow.pt`
-- `cosyvoice.yaml`
-- `speech_tokenizer_v1.onnx`
-
-示例（需已安装 `huggingface-cli`）：
-
-```bash
-HF_HUB_ENABLE_HF_TRANSFER=0 huggingface-cli download FunAudioLLM/CosyVoice-300M \
-  --local-dir pretrained_weights/CosyVoice-300M
-```
-
-下载后把自训的 `s3tokenizer.pt` 与 `flow_torch_ddp/*.pt` 仍按上表放在 `pretrained_weights/` 下即可。
+> 可选：若要跑官方 preset（`official_cosyvoice1_50hz`），同目录还需 `flow.pt`、`cosyvoice.yaml`、`speech_tokenizer_v1.onnx`。
