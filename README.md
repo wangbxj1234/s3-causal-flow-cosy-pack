@@ -116,19 +116,27 @@ python tools/eval_flow_reconstruct_mel.py \
 
 ---
 
-## 训练复现（入口）
+## 训练复现（脚本职责与顺序）
 
 已包含：
 - `s3tokenizer_train/`（因果 tokenizer 训练与导出）
 - `cosyvoice/bin/train.py`（Flow 训练入口）
 - `tools/extract_speech_token_s3.py`、`tools/make_parquet_list.py`（数据准备）
 
-参考脚本：
-- `examples/train_flow_officialinit_causal_example.sh`
-- `scripts/host/s3tokenizer_watchdog_causal.sh`
-- `scripts/host/run_cosyvoice1_flow_aishell_s3.sh`
+三份训练脚本的定位如下：
 
-训练仍需你自己准备数据（AISHELL 等）并修改脚本路径。
+| 脚本 | 作用 | 输入前提 | 产出 |
+|------|------|----------|------|
+| `scripts/host/s3tokenizer_watchdog_causal.sh` | 训练因果 S3 tokenizer（watchdog 自动重启/续训） | `data/aishell_s3/{train,dev}` 已准备 | `exp/s3tokenizer_causal_streaming/` 下 checkpoint，后续可导出 `.pt` |
+| `scripts/host/run_cosyvoice1_flow_aishell_s3.sh` | 一条龙：导出 tokenizer、抽 token、做 parquet、生成 data.list、启动 Flow | 本机路径已按脚本写死；默认走 `step2_c_commit005` 相关路径 | Flow 训练目录 + `train.data.list`/`dev.data.list` |
+| `examples/train_flow_officialinit_causal_example.sh` | 仅启动 Flow 训练（官方 `flow.pt` 初始化） | 已有 `train.data.list`/`dev.data.list` + `flow.pt` + campplus 资源 | `exp/my_causal_flow/flow/torch_ddp` |
+
+推荐顺序（更清晰、可控）：
+1. 先跑 `scripts/host/s3tokenizer_watchdog_causal.sh` 训练 tokenizer，并导出 `s3tokenizer.pt`。
+2. 使用 `tools/extract_speech_token_s3.py` + `tools/make_parquet_list.py` 准备 `train.data.list` / `dev.data.list`。
+3. 最后跑 `examples/train_flow_officialinit_causal_example.sh` 启动 Flow 训练。
+
+说明：`scripts/host/run_cosyvoice1_flow_aishell_s3.sh` 更像“历史实验的一键脚本模板”，包含较多硬编码路径。新环境复现时建议按上面 1→2→3 拆步执行，问题更容易定位。
 
 ---
 
