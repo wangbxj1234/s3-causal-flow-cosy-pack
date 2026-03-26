@@ -22,8 +22,8 @@
 ## 1. 获取代码
 
 ```bash
-git clone https://github.com/<your-org-or-user>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/wangbxj1234/s3-causal-flow-cosy-pack.git
+cd s3-causal-flow-cosy-pack
 ```
 
 ---
@@ -92,7 +92,7 @@ export PYTHONPATH="$(pwd):$(pwd)/third_party/Matcha-TTS"
 ### 3.2 放置目录（严格按此结构）
 
 ```text
-<repo_root>/
+s3-causal-flow-cosy-pack/
   conf/
     cosyvoice_aishell_s3tok1024_25hz.yaml
   pretrained_weights/
