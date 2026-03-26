@@ -120,10 +120,20 @@ chmod +x examples/*.sh
 
 ---
 
-## 打包发布
+## 获取代码
+
+一般直接使用 Git 即可（便于同步更新与对照版本）：
 
 ```bash
-tar -czvf s3_causal_flow_standalone.tar.gz -C PARENT github_pack_s3_causal_flow
+git clone https://github.com/<你的用户名>/<仓库名>.git
+cd <仓库名>
 ```
 
-（将 `PARENT` 换为包含本目录的父路径。）
+若需要把某次检出的源码打成压缩包自行备份或离线传递，在**该目录的上一级**执行即可，例如：
+
+```bash
+cd ..
+tar -czvf my-snapshot.tar.gz <仓库目录名>
+```
+
+解压：`tar -xzvf my-snapshot.tar.gz`。
