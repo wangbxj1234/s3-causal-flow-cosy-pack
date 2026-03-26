@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Self-prompt flow reconstruction: compare predicted target mel vs GT mel (same protocol as infer_flow_reconstruct_s3tok25hz)."""
+"""Self-prompt flow reconstruction: compare predicted target mel vs GT mel (same protocol as infer_flow_reconstruct_s3tok25hz).
+Standalone repo vendoring; upstream CosyVoice (FunAudioLLM/CosyVoice)."""
 from __future__ import annotations
 
 import argparse
@@ -66,8 +67,8 @@ def run_one(
             env_tok = os.environ.get("COSYVOICE_S3_TOKENIZER_PT", "").strip()
             if env_tok:
                 tokenizer_pt = env_tok
-            elif inf._DEFAULT_S3_TOKENIZER_PT.is_file():
-                tokenizer_pt = str(inf._DEFAULT_S3_TOKENIZER_PT)
+            elif inf._default_s3_tokenizer_pt(repo).is_file():
+                tokenizer_pt = str(inf._default_s3_tokenizer_pt(repo))
             else:
                 raise SystemExit("custom preset needs --tokenizer_pt or COSYVOICE_S3_TOKENIZER_PT")
 
@@ -231,17 +232,16 @@ def main():
     args = p.parse_args()
 
     repo = _REPO
-    official_root = repo / "pretrained_models" / "CosyVoice-300M"
+    official_root = repo / "pretrained_weights" / "CosyVoice-300M"
     default_assets = str(official_root) if (official_root / "campplus.onnx").is_file() else ""
     assets_dir = args.assets_dir or default_assets
     if not assets_dir:
-        raise SystemExit("set --assets_dir or place CosyVoice-300M under pretrained_models/")
+        raise SystemExit(
+            "set --assets_dir or download campplus.onnx+hift.pt into pretrained_weights/CosyVoice-300M/ (see README)"
+        )
 
-    default_cfg = repo / "examples/libritts/cosyvoice/conf/cosyvoice_aishell_s3tok1024_25hz.yaml"
-    default_torch_ddp = (
-        repo
-        / "exp/cosyvoice1_flow_s3tok1024_25hz_causalflow_officialinit_20260324_163406/flow/torch_ddp"
-    )
+    default_cfg = repo / "conf" / "cosyvoice_aishell_s3tok1024_25hz.yaml"
+    default_torch_ddp = repo / "pretrained_weights" / "flow_torch_ddp"
     _auto = inf._latest_epoch_whole_pt(default_torch_ddp)
     default_ckpt = str(_auto) if _auto is not None else str(default_torch_ddp / "epoch_0_whole.pt")
 

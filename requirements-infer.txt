@@ -1,0 +1,19 @@
+# Inference-oriented deps (install torch/torchaudio for your CUDA/CPU stack first).
+# CosyVoice upstream: https://github.com/FunAudioLLM/CosyVoice/blob/main/requirements.txt
+
+HyperPyYAML>=1.2.0
+omegaconf>=2.3.0
+numpy>=1.24
+onnxruntime>=1.16.0
+openai-whisper
+soundfile
+scipy
+librosa
+conformer==0.3.2
+x-transformers>=2.11.0
+diffusers>=0.29.0
+inflect>=7.0.0
+wget>=3.2
+tqdm>=4.65.0
+pandas>=2.0
+pyarrow>=14.0

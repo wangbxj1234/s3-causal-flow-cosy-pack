@@ -19,6 +19,8 @@
     --speaker_wav path/to/other_speaker.wav \\
     --out_wav /tmp/cross_spk.wav --n_timesteps 20
 """
+# Standalone repo: vendored next to infer_flow_reconstruct_s3tok25hz.py.
+# Upstream: CosyVoice project (FunAudioLLM/CosyVoice).
 from __future__ import annotations
 
 import argparse
@@ -63,16 +65,12 @@ def main() -> None:
         ) from e
 
     repo = inf._repo_root()
-    default_cfg = repo / "examples/libritts/cosyvoice/conf/cosyvoice_aishell_s3tok1024_25hz.yaml"
-    default_torch_ddp = (
-        repo
-        / "exp/cosyvoice1_flow_s3tok1024_25hz_causalflow_officialinit_20260324_163406/flow/torch_ddp"
-    )
+    default_cfg = repo / "conf" / "cosyvoice_aishell_s3tok1024_25hz.yaml"
+    default_torch_ddp = repo / "pretrained_weights" / "flow_torch_ddp"
     _auto_ckpt = inf._latest_epoch_whole_pt(default_torch_ddp)
     default_ckpt = _auto_ckpt if _auto_ckpt is not None else (default_torch_ddp / "epoch_0_whole.pt")
     official_root = inf._official_cosyvoice1_dir(repo)
-    default_assets_marco = "/mnt/data/Marco-Voice-main/pretrained_models/marco_voice/marco_voice"
-    default_assets = str(official_root) if (official_root / "campplus.onnx").is_file() else default_assets_marco
+    default_assets = str(official_root) if (official_root / "campplus.onnx").is_file() else ""
 
     p = argparse.ArgumentParser(
         description="Cross-speaker flow recon: tokens+mel from content_wav; spk emb from speaker_wav"
@@ -124,8 +122,8 @@ def main() -> None:
             env_tok = os.environ.get("COSYVOICE_S3_TOKENIZER_PT", "").strip()
             if env_tok:
                 args.tokenizer_pt = env_tok
-            elif inf._DEFAULT_S3_TOKENIZER_PT.is_file():
-                args.tokenizer_pt = str(inf._DEFAULT_S3_TOKENIZER_PT)
+            elif inf._default_s3_tokenizer_pt(repo).is_file():
+                args.tokenizer_pt = str(inf._default_s3_tokenizer_pt(repo))
             else:
                 raise SystemExit("custom preset needs --tokenizer_pt or COSYVOICE_S3_TOKENIZER_PT")
         print(f"[custom] tokenizer_pt={args.tokenizer_pt}", flush=True)
