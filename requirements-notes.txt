@@ -1,0 +1,17 @@
+# Dependency notes (not a strict lockfile)
+#
+# This pipeline was run with a Python 3.10 environment that already included
+# CosyVoice + Matcha-TTS + PyTorch CUDA. On the reference machine, the interpreter
+# was: /path/to/marco/bin/python (internal Marco-Voice stack).
+#
+# Typical pip/conda packages you need (names only; pin versions to match your CUDA):
+#   torch torchaudio
+#   onnxruntime  (CUDA build optional; tokenizer ONNX / campplus use ORT)
+#   hyperpyyaml omegaconf
+#   openai-whisper
+#   diffusers accelerate transformers  (pulled in by CosyVoice / Matcha deps)
+#   soundfile  (torchaudio I/O fallback)
+#   tensorboard  (optional, for CosyVoice train logs)
+#
+# CosyVoice repo: initialize submodule third_party/Matcha-TTS and install per upstream FAQ.
+# s3tokenizer_train: lives alongside CosyVoice-main (sibling directory) in our layout.
