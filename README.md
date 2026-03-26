@@ -1,21 +1,22 @@
 # S3 Causal Tokenizer + CosyVoice Flow (Standalone Repro Repo)
 
-这个仓库的目标是：**从 0 克隆后，最快跑通你们的推理效果**。
+本仓库提供可独立复现的 S3-causal Flow 推理环境，无需额外克隆完整 CosyVoice 主仓库。`cosyvoice`、`Matcha-TTS`、`s3tokenizer_train` 源码均已内置。
 
-你不需要再单独克隆 CosyVoice 主仓库：`cosyvoice`、`Matcha-TTS`、`s3tokenizer_train` 已内置。
+## 权重完整性检查
 
-## 先看结论：Google Drive 的 4 个文件够不够？
-
-你的 Drive：
+权重发布目录：
 - [s3_causal_flow folder](https://drive.google.com/drive/folders/1KwHVm4fNiKRTt-LqZrDkDSN9k9hEgC4B?usp=drive_link)
 
-当前可见 4 个文件中：
-- `epoch_199_whole.pt` ✅ 必需（Flow 权重）
-- `s3tokenizer_export_epoch15.pt` ✅ 必需（S3 tokenizer 权重）
-- `cosyvoice_aishell_s3tok1024_25hz.yaml` ✅ 必需（配置）
-- `epoch_199_whole.yaml` ⚪ 可选（记录信息，推理不直接依赖）
+当前目录中文件及作用：
 
-还需要再补 2 个文件（从 CosyVoice-300M 下载）：
+| 文件 | 状态 | 作用 |
+|------|--------|---------|
+| `epoch_199_whole.pt` | 必需 | Flow checkpoint |
+| `s3tokenizer_export_epoch15.pt` | 必需 | S3 tokenizer checkpoint |
+| `cosyvoice_aishell_s3tok1024_25hz.yaml` | 必需 | Flow config |
+| `epoch_199_whole.yaml` | 可选 | 训练元信息记录 |
+
+还需补充以下 2 个文件（来自 CosyVoice-300M）：
 - [campplus.onnx](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/campplus.onnx)
 - [hift.pt](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/hift.pt)
 

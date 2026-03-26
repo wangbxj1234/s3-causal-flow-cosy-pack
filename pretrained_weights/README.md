@@ -8,19 +8,19 @@
 4. `CosyVoice-300M/campplus.onnx`
 5. `CosyVoice-300M/hift.pt`
 
-## A) 你们公开 Google Drive（核心 3 件）
+## A) Google Drive（核心 3 个文件）
 
 - Drive: [s3_causal_flow folder](https://drive.google.com/drive/folders/1KwHVm4fNiKRTt-LqZrDkDSN9k9hEgC4B?usp=drive_link)
 
-请映射为：
+建议映射如下：
 
 - `s3tokenizer_export_epoch15.pt` -> `pretrained_weights/s3tokenizer.pt`
 - `epoch_199_whole.pt` -> `pretrained_weights/flow_torch_ddp/epoch_199_whole.pt`
 - `cosyvoice_aishell_s3tok1024_25hz.yaml` -> `conf/cosyvoice_aishell_s3tok1024_25hz.yaml`
 
-`epoch_199_whole.yaml` 是可选记录文件，不是推理硬依赖。
+`epoch_199_whole.yaml` 为可选元信息文件，不是推理硬依赖。
 
-## B) Hugging Face（附属 2 件）
+## B) Hugging Face（补充 2 个文件）
 
 - [campplus.onnx](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/campplus.onnx)
 - [hift.pt](https://huggingface.co/FunAudioLLM/CosyVoice-300M/blob/main/hift.pt)
