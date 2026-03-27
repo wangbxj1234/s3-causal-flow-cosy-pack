@@ -18,7 +18,7 @@ export PYTHONPATH="$(pwd):$(pwd)/third_party/Matcha-TTS"
 
 | 来源 | 内容 |
 |------|------|
-| [Google Drive](https://drive.google.com/drive/folders/1KwHVm4fNiKRTt-LqZrDkDSN9k9hEgC4B?usp=drive_link) | `s3tokenizer_export_epoch15.pt`、`epoch_199_whole.pt`、`cosyvoice_aishell_s3tok1024_25hz.yaml` |
+| [Google Drive](https://drive.google.com/drive/folders/1KwHVm4fNiKRTt-LqZrDkDSN9k9hEgC4B?usp=drive_link) | `s3tokenizer_export_epoch15.pt`、`epoch_121_whole.pt`、`cosyvoice_aishell_s3tok1024_25hz.yaml` |
 | [Hugging Face](https://huggingface.co/FunAudioLLM/CosyVoice-300M) | `campplus.onnx`、`hift.pt`；训练 Flow 时还需要同目录的 `flow.pt` |
 
 放置示例：
