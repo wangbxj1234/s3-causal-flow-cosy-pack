@@ -1,6 +1,6 @@
 # S3 Causal Tokenizer + CosyVoice Flow
 
-## Quick start（推理）
+## Quick start（环境）
 
 ```bash
 git clone https://github.com/wangbxj1234/s3-causal-flow-cosy-pack.git
@@ -12,33 +12,16 @@ pip install -r requirements-infer.txt
 export PYTHONPATH="$(pwd):$(pwd)/third_party/Matcha-TTS"
 ```
 
-按下面「权重」放好文件后：
-
-```bash
-bash examples/infer_self_prompt_example.sh /path/to/in.wav /path/to/out.wav
-bash examples/infer_cross_speaker_example.sh /path/to/content.wav /path/to/speaker.wav /path/to/out.wav
-```
-
-或直接：
-
-```bash
-python tools/infer_flow_reconstruct_causal_s3tok25hz.py \
-  --wav /path/to/in.wav --out_wav /path/to/out.wav \
-  --assets_dir pretrained_weights/CosyVoice-300M --n_timesteps 20
-```
-
-需要 `pretrained_weights/s3tokenizer.pt`、`pretrained_weights/flow_torch_ddp/` 下 Flow 权重、`pretrained_weights/CosyVoice-300M/` 下 `campplus.onnx` 与 `hift.pt`（见下）。
-
 ---
 
-## 权重
+## 下载预训练模型权重
 
 | 来源 | 内容 |
 |------|------|
 | [Google Drive](https://drive.google.com/drive/folders/1KwHVm4fNiKRTt-LqZrDkDSN9k9hEgC4B?usp=drive_link) | `s3tokenizer_export_epoch15.pt`、`epoch_199_whole.pt`、`cosyvoice_aishell_s3tok1024_25hz.yaml` |
 | [Hugging Face](https://huggingface.co/FunAudioLLM/CosyVoice-300M) | `campplus.onnx`、`hift.pt`；训练 Flow 时还需要同目录的 `flow.pt` |
 
-目录示例：
+放置示例：
 
 ```text
 pretrained_weights/s3tokenizer.pt
@@ -50,6 +33,25 @@ conf/cosyvoice_aishell_s3tok1024_25hz.yaml
 ```
 
 将 Drive 里的 `s3tokenizer_export_epoch15.pt` 复制为 `pretrained_weights/s3tokenizer.pt`，`epoch_199_whole.pt` 放到 `pretrained_weights/flow_torch_ddp/`。
+
+---
+
+## 推理
+
+```bash
+bash examples/infer_self_prompt_example.sh /path/to/in.wav /path/to/out.wav
+bash examples/infer_cross_speaker_example.sh /path/to/content.wav /path/to/speaker.wav /path/to/out.wav
+```
+
+或：
+
+```bash
+python tools/infer_flow_reconstruct_causal_s3tok25hz.py \
+  --wav /path/to/in.wav --out_wav /path/to/out.wav \
+  --assets_dir pretrained_weights/CosyVoice-300M --n_timesteps 20
+```
+
+依赖：`pretrained_weights/s3tokenizer.pt`、`pretrained_weights/flow_torch_ddp/` 下 Flow 权重、`pretrained_weights/CosyVoice-300M/` 下 `campplus.onnx` 与 `hift.pt`。
 
 ---
 
