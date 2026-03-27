@@ -25,14 +25,14 @@ export PYTHONPATH="$(pwd):$(pwd)/third_party/Matcha-TTS"
 
 ```text
 pretrained_weights/s3tokenizer.pt
-pretrained_weights/flow_torch_ddp/epoch_199_whole.pt
+pretrained_weights/flow_torch_ddp/epoch_121_whole.pt
 pretrained_weights/CosyVoice-300M/campplus.onnx
 pretrained_weights/CosyVoice-300M/hift.pt
 pretrained_weights/CosyVoice-300M/flow.pt    # 仅训练 Flow 时需要
 conf/cosyvoice_aishell_s3tok1024_25hz.yaml
 ```
 
-将 Drive 里的 `s3tokenizer_export_epoch15.pt` 复制为 `pretrained_weights/s3tokenizer.pt`，`epoch_199_whole.pt` 放到 `pretrained_weights/flow_torch_ddp/`。
+将 Drive 里的 `s3tokenizer_export_epoch15.pt` 复制为 `pretrained_weights/s3tokenizer.pt`，`epoch_121_whole.pt` 放到 `pretrained_weights/flow_torch_ddp/`。
 
 ---
 
