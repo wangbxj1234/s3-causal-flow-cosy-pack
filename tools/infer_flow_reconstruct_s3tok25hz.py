@@ -17,9 +17,12 @@ A) 官方 CosyVoice-1（FunAudioLLM/CosyVoice-300M，仓库默认 50Hz / vocab 4
 
 B) 你的训练成果（与官方不同：1024 码本 / 25Hz + S3 tokenizer，不可与 A 混用）
    - flow 权重：torch_ddp 目录下 epoch_*_whole.pt（可用 --torch_ddp_dir 自动选最新）
-   - tokenizer：训练数据同一套 S3 导出（--tokenizer_pt 或 COSYVOICE_S3_TOKENIZER_PT）
-   - 结构 yaml：必须与训练 config 一致（例如 causal-flow 官方 init 跑用
-     examples/libritts/cosyvoice/conf/cosyvoice_aishell_s3tok1024_25hz.yaml）
+   - tokenizer：必须与 **Flow 训练数据** 为同一套 S3 导出（--tokenizer_pt 或 COSYVOICE_S3_TOKENIZER_PT）。
+     因果 Flow 线应使用 **因果 tokenizer 导出** 抽的 token 训出来的权重；若训练数据曾误用非因果
+     tokenizer 抽 token，需按 README「因果工作流」重做数据并重训，或换用与数据一致的 ckpt。
+   - 便捷入口：tools/infer_flow_reconstruct_causal_s3tok25hz.py（默认 pretrained_weights/s3tokenizer.pt
+     + exp/...officialinit_causaldata.../torch_ddp）
+   - 结构 yaml：必须与训练 config 一致（本仓库 conf/cosyvoice_aishell_s3tok1024_25hz.yaml）
    - campplus / hift：仍用 CosyVoice-300M 目录即可（与 token 无关）
    - 默认 preset 为 custom_s3tok25hz：不传 --preset 即走这条链路；官方对比时显式加
      --preset official_cosyvoice1_50hz
@@ -78,9 +81,10 @@ def _official_cosyvoice1_dir(repo: Path) -> Path:
     return repo / "pretrained_weights" / "CosyVoice-300M"
 
 
-# 自训 S3 tokenizer：放 pretrained_weights/s3tokenizer.pt 或设 COSYVOICE_S3_TOKENIZER_PT
-def _default_s3_tokenizer_pt(repo: Path) -> Path:
-    return repo / "pretrained_weights" / "s3tokenizer.pt"
+# 自训 S3 tokenizer 必须显式指定：
+# - --tokenizer_pt /path/to/exported_s3_tokenizer.pt
+# 或
+# - 环境变量 COSYVOICE_S3_TOKENIZER_PT
 
 
 def _latest_epoch_whole_pt(torch_ddp_dir: Path) -> Path | None:
@@ -315,8 +319,6 @@ def main():
             env_tok = os.environ.get("COSYVOICE_S3_TOKENIZER_PT", "").strip()
             if env_tok:
                 args.tokenizer_pt = env_tok
-            elif _default_s3_tokenizer_pt(repo).is_file():
-                args.tokenizer_pt = str(_default_s3_tokenizer_pt(repo))
             else:
                 raise SystemExit(
                     "自训 preset 必须提供 S3 tokenizer：--tokenizer_pt=... 或设置环境变量 "

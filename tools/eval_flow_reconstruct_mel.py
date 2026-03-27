@@ -67,8 +67,6 @@ def run_one(
             env_tok = os.environ.get("COSYVOICE_S3_TOKENIZER_PT", "").strip()
             if env_tok:
                 tokenizer_pt = env_tok
-            elif inf._default_s3_tokenizer_pt(repo).is_file():
-                tokenizer_pt = str(inf._default_s3_tokenizer_pt(repo))
             else:
                 raise SystemExit("custom preset needs --tokenizer_pt or COSYVOICE_S3_TOKENIZER_PT")
 

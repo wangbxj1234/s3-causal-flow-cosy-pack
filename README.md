@@ -1,12 +1,31 @@
 # S3 Causal Tokenizer + CosyVoice Flow (Standalone Repro Repo)
 
-本 README 面向从零开始的复现流程。按顺序执行即可完成：
-1) 环境安装  
-2) 权重下载与放置  
-3) 推理验证  
-4)（可选）训练复现
+本 README 只保留读者需要的四个入口脚本（训练/推理最小闭环）：
+
+1) `examples/train_tokenizer_causal_example.sh`（训练 causal tokenizer）  
+2) `examples/prepare_flow_data_from_causal_tokenizer_example.sh`（导出 tokenizer + 生成 Flow 训练数据）  
+3) `examples/train_flow_officialinit_causal_example.sh`（训练 Flow）  
+4) `examples/infer_self_prompt_example.sh` / `examples/infer_cross_speaker_example.sh`（Flow 推理）
 
 本仓库已内置 `cosyvoice`、`Matcha-TTS`、`s3tokenizer_train` 源码，不需要再额外克隆 CosyVoice 主仓库。
+
+### 因果工作流（必读）
+
+本项目的 **Flow 必须在与训练相同的数据协议上推理**：
+
+1. **因果 S3 tokenizer**：在 `s3tokenizer_train` 的 **strict-causal / streaming** 设定下训练，导出为 `.pt`（例如 Drive 里的 `s3tokenizer_export_epoch15.pt`，放到 `pretrained_weights/s3tokenizer.pt`）。
+2. **抽 token**：`tools/extract_speech_token_s3.py` 必须使用 **上述因果导出**，生成各 utterance 的 speech token，再打 parquet / `train.data.list`。
+3. **训 Flow**：在 **该 token** 上训好的 checkpoint 才与推理一致。
+
+历史上若曾用 **非因果** tokenizer 抽 token 却当作「因果线」训 Flow，会出现 token 分布与模型假设不一致。改正方式：用因果导出重做 `utt2speech_token.pt` → parquet → data.list → 重训（或使用和旧数据一致的旧 ckpt）。
+
+**推荐推理入口**（自动使用 `pretrained_weights/s3tokenizer.pt` + `officialinit_causaldata` 实验目录下的最新 Flow）：
+
+- `tools/infer_flow_reconstruct_causal_s3tok25hz.py`
+- `tools/infer_flow_reconstruct_cross_speaker_causal_s3tok25hz.py`
+
+底层仍调用 `infer_flow_reconstruct_*_s3tok25hz.py`；若需显式指定，继续传 `--tokenizer_pt` 或设置 `COSYVOICE_S3_TOKENIZER_PT`。  
+本仓库不再提供 tokenizer 的“自动回退路径”。
 
 ---
 
@@ -123,6 +142,8 @@ ls -lh \
   pretrained_weights/CosyVoice-300M/hift.pt
 ```
 
+> 注意：`custom_s3tok25hz` 模式下不再使用本地默认 tokenizer 回退。必须显式传 `--tokenizer_pt`，或设置 `COSYVOICE_S3_TOKENIZER_PT`。
+
 ---
 
 ## 4. 从 0 开始跑推理
@@ -130,6 +151,18 @@ ls -lh \
 以下命令均在仓库根目录执行，且已激活 `.venv`。
 
 ### 4.1 自提示重建（单条 wav）
+
+**推荐（因果默认）**：权重按上文放置后，可直接：
+
+```bash
+python tools/infer_flow_reconstruct_causal_s3tok25hz.py \
+  --wav /absolute/path/to/input.wav \
+  --out_wav /absolute/path/to/out_self.wav \
+  --assets_dir pretrained_weights/CosyVoice-300M \
+  --n_timesteps 20
+```
+
+显式指定 ckpt / tokenizer 时用底层脚本：
 
 ```bash
 python tools/infer_flow_reconstruct_s3tok25hz.py \
@@ -143,6 +176,19 @@ python tools/infer_flow_reconstruct_s3tok25hz.py \
 ```
 
 ### 4.2 跨说话人重建（内容和声纹分离）
+
+**推荐（因果默认）**：
+
+```bash
+python tools/infer_flow_reconstruct_cross_speaker_causal_s3tok25hz.py \
+  --content_wav /absolute/path/to/content.wav \
+  --speaker_wav /absolute/path/to/speaker_ref.wav \
+  --out_wav /absolute/path/to/out_cross.wav \
+  --assets_dir pretrained_weights/CosyVoice-300M \
+  --n_timesteps 20
+```
+
+显式指定：
 
 ```bash
 python tools/infer_flow_reconstruct_cross_speaker_s3tok25hz.py \
@@ -171,56 +217,45 @@ python tools/eval_flow_reconstruct_mel.py \
 
 ---
 
-## 5. 训练复现（完整流程）
+## 5. 四个入口脚本（读者只看这部分）
 
-本仓库提供训练相关源码与脚本。推荐按下列顺序执行，不要跳步。
+### 1) 训练 causal tokenizer
 
-### 步骤 1：训练因果 S3 tokenizer
+```bash
+bash examples/train_tokenizer_causal_example.sh
+```
 
-脚本：`scripts/host/s3tokenizer_watchdog_causal.sh`
+默认产物：`exp/s3tokenizer_causal_streaming/*`
 
-作用：
-- 启动 `s3tokenizer_train.train`
-- 断开后自动拉起
-- 有 checkpoint 时自动 resume
+### 2) 准备 Flow 训练数据（导出 tokenizer + 抽 token + parquet）
 
-输入前提：
-- `data/aishell_s3/train`
-- `data/aishell_s3/dev`
+```bash
+bash examples/prepare_flow_data_from_causal_tokenizer_example.sh
+```
 
-### 步骤 2：导出 tokenizer + 生成 Flow 训练数据
+默认产物：
 
-可使用：
-- `tools/extract_speech_token_s3.py`
-- `tools/make_parquet_list.py`
+- `pretrained_weights/s3tokenizer.pt`
+- `data/aishell_s3_causal_flow/train.data.list`
+- `data/aishell_s3_causal_flow/dev.data.list`
 
-目标产物：
-- `train.data.list`
-- `dev.data.list`
+### 3) 训练 Flow（官方 flow.pt 初始化）
 
-### 步骤 3：训练 Flow（官方 flow.pt 初始化）
+```bash
+bash examples/train_flow_officialinit_causal_example.sh
+```
 
-脚本：`examples/train_flow_officialinit_causal_example.sh`
+默认输入：`data/aishell_s3_causal_flow/train.data.list`、`data/aishell_s3_causal_flow/dev.data.list`  
+默认产物：`exp/my_causal_flow/flow/torch_ddp/epoch_*_whole.pt`
 
-需要先改这些变量：
-- `TRAIN_LIST`
-- `CV_LIST`
-- `ONNX_PATH`
-- `NPROC`
-- `CUDA_VISIBLE_DEVICES`
+### 4) 推理（自提示 / 跨说话人）
 
-运行后产物：
-- `exp/.../flow/torch_ddp/epoch_*_whole.pt`
+```bash
+bash examples/infer_self_prompt_example.sh /abs/input.wav /abs/out_self.wav
+bash examples/infer_cross_speaker_example.sh /abs/content.wav /abs/speaker.wav /abs/out_cross.wav
+```
 
-### 说明：另一份 host 一键脚本
-
-`scripts/host/run_cosyvoice1_flow_aishell_s3.sh` 会串联：
-- 导出 tokenizer
-- 抽 token
-- 生成 parquet / data.list
-- 启动 Flow
-
-该脚本内有较多本机路径，跨机器复现前必须逐项修改。
+说明：这两个推理脚本都走 causal wrapper，默认使用 `pretrained_weights/s3tokenizer.pt`。
 
 ---
 
@@ -238,6 +273,10 @@ python tools/eval_flow_reconstruct_mel.py \
 - `torchaudio` / CUDA symbol 报错  
   典型原因是 `torch` 与 `torchaudio` 版本不匹配，按同一官方渠道重装
 
+- `watchdog` 是什么？  
+  之前的 `scripts/host/s3tokenizer_watchdog_causal.sh` 是“保活脚本”，用于长训时被外部信号打断后自动拉起并续训。  
+  它是内部运维工具，不是读者复现必需路径；当前读者文档已不依赖它。
+
 ---
 
 ## 7. 仓库结构
@@ -249,9 +288,15 @@ python tools/eval_flow_reconstruct_mel.py \
 ├── s3tokenizer_train/
 ├── conf/
 ├── tools/
+│   ├── infer_flow_reconstruct_causal_s3tok25hz.py   # 推荐：因果 tokenizer + causal-data Flow 默认
+│   └── infer_flow_reconstruct_cross_speaker_causal_s3tok25hz.py
 ├── pretrained_weights/
 ├── examples/
-├── scripts/host/
+│   ├── train_tokenizer_causal_example.sh
+│   ├── prepare_flow_data_from_causal_tokenizer_example.sh
+│   ├── train_flow_officialinit_causal_example.sh
+│   ├── infer_self_prompt_example.sh
+│   └── infer_cross_speaker_example.sh
 ├── requirements-infer.txt
 └── ATTRIBUTION.md
 ```

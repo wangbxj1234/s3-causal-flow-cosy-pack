@@ -3,6 +3,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
 export PYTHONPATH="${REPO}:${REPO}/third_party/Matcha-TTS"
+export COSYVOICE_S3_TOKENIZER_PT="${REPO}/pretrained_weights/s3tokenizer.pt"
 PY="${PYTHON:-python3}"
 
 WAV="${1:?usage: $0 <wav> [metrics.jsonl]}"
