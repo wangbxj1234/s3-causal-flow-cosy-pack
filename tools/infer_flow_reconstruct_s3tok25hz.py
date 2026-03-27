@@ -17,9 +17,7 @@ A) 官方 CosyVoice-1（FunAudioLLM/CosyVoice-300M，仓库默认 50Hz / vocab 4
 
 B) 你的训练成果（与官方不同：1024 码本 / 25Hz + S3 tokenizer，不可与 A 混用）
    - flow 权重：torch_ddp 目录下 epoch_*_whole.pt（可用 --torch_ddp_dir 自动选最新）
-   - tokenizer：必须与 **Flow 训练数据** 为同一套 S3 导出（--tokenizer_pt 或 COSYVOICE_S3_TOKENIZER_PT）。
-     因果 Flow 线应使用 **因果 tokenizer 导出** 抽的 token 训出来的权重；若训练数据曾误用非因果
-     tokenizer 抽 token，需按 README「因果工作流」重做数据并重训，或换用与数据一致的 ckpt。
+   - tokenizer：与 Flow 训练时抽 token 所用为同一 S3 导出（--tokenizer_pt 或 COSYVOICE_S3_TOKENIZER_PT）
    - 便捷入口：tools/infer_flow_reconstruct_causal_s3tok25hz.py（默认 pretrained_weights/s3tokenizer.pt
      + exp/...officialinit_causaldata.../torch_ddp）
    - 结构 yaml：必须与训练 config 一致（本仓库 conf/cosyvoice_aishell_s3tok1024_25hz.yaml）

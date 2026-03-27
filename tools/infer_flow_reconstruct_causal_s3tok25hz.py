@@ -8,9 +8,6 @@ causal S3 tokenizer + causal-data Flow 专用：单 wav 自提示重建包装脚
   1) 优先选 exp/cosyvoice1_flow_s3tok1024_25hz_officialinit_causaldata_*/flow/torch_ddp 下最新 ckpt
   2) tokenizer 仅使用 pretrained_weights/s3tokenizer.pt（因果导出放置处）
 
-训练数据必须用「因果 tokenizer 导出」抽的 token；若用旧非因果 tokenizer 抽 token 训 flow，
-推理时也必须与训练一致 —— 见仓库 README「因果工作流」一节。
-
 仍可用 --flow_ckpt / --torch_ddp_dir / --tokenizer_pt / COSYVOICE_S3_TOKENIZER_PT 覆盖。
 """
 from __future__ import annotations

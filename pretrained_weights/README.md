@@ -1,6 +1,6 @@
 # pretrained_weights 说明
 
-**因果线**：`s3tokenizer.pt` 必须是 **因果 S3 tokenizer 训练并导出** 的权重（例如 Drive 中的 `s3tokenizer_export_epoch15.pt`），与 Flow 训练时抽 token 所用为同一导出。不要用旧「非因果」tokenizer 导出冒充因果线，否则与 Flow 数据分布不一致。
+`s3tokenizer.pt` 应为因果 S3 tokenizer 的导出权重（例如 Drive 中的 `s3tokenizer_export_epoch15.pt` 重命名放入），且与 Flow 训练时抽 token 所用为同一导出。
 
 推理最少需要 5 个文件：
 
