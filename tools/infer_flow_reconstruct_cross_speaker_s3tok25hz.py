@@ -233,10 +233,10 @@ def main() -> None:
             cache_source=torch.zeros(1, 1, 0, device=device, dtype=torch.float32),
         )
 
-    import torchaudio
+    import soundfile as sf
 
     out = tts_speech.squeeze(0).detach().cpu()
-    torchaudio.save(args.out_wav, out.unsqueeze(0), sample_rate)
+    sf.write(args.out_wav, out.numpy(), sample_rate)
     dur = out.numel() / sample_rate
     print(
         f"Wrote {args.out_wav} ({dur:.2f}s). cross_speaker: "

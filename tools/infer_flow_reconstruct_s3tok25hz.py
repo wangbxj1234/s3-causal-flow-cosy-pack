@@ -126,8 +126,13 @@ def _ensure_import_paths():
 
 
 def load_wav_1ch(path: str, target_sr: int) -> torch.Tensor:
-    speech, sr = torchaudio.load(path, backend="soundfile")
-    speech = speech.mean(dim=0, keepdim=True)
+    import soundfile as sf
+    data, sr = sf.read(path, dtype="float32")
+    speech = torch.from_numpy(data)
+    if speech.ndim == 1:
+        speech = speech.unsqueeze(0)
+    else:
+        speech = speech.T.mean(dim=0, keepdim=True)
     if sr != target_sr:
         speech = torchaudio.transforms.Resample(sr, target_sr)(speech)
     return speech
@@ -429,7 +434,8 @@ def main():
         )
 
     out = tts_speech.squeeze(0).detach().cpu()
-    torchaudio.save(args.out_wav, out.unsqueeze(0), sample_rate)
+    import soundfile as sf
+    sf.write(args.out_wav, out.numpy(), sample_rate)
     dur = out.numel() / sample_rate
     print(
         f"Wrote {args.out_wav} ({dur:.2f}s). "
