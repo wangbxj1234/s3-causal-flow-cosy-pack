@@ -125,7 +125,7 @@ def strip_meta_state_dict(obj):
 class StreamState:
     """Holds all mutable state carried across streaming chunks."""
 
-    def __init__(self, device: torch.device, mel_overlap_len: int, mel_cache_len: int = 20):
+    def __init__(self, device: torch.device, mel_overlap_len: int, mel_cache_len: int = 10):
         self.flow_cache = torch.zeros(1, 80, 0, 2, device=device)
         self.mel_overlap = torch.zeros(1, 80, 0, device=device)
         self.hift_cache: Optional[dict] = None
@@ -425,16 +425,22 @@ def main():
         pending_tokens = torch.zeros(1, 0, dtype=torch.int32, device=device)
 
     # -----------------------------------------------------------------------
-    # Write output
+    # Write output – prepend the original prompt audio so the result is
+    # complete rather than missing the initial prompt_ms.
     # -----------------------------------------------------------------------
     if not state.audio_chunks:
         raise RuntimeError("No audio generated. Input may be too short after prompt.")
 
-    out = torch.cat(state.audio_chunks, dim=-1)
+    generated = torch.cat(state.audio_chunks, dim=-1)
+
+    prompt_audio_22k = speech_22k[:, :prompt_samples_22k].squeeze(0).cpu()
+    out = torch.cat([prompt_audio_22k, generated], dim=-1)
+
     torchaudio.save(args.out_wav, out.unsqueeze(0), sample_rate)
     dur = out.numel() / sample_rate
     print(
-        f"\nWrote {args.out_wav} ({dur:.2f}s). "
+        f"\nWrote {args.out_wav} ({dur:.2f}s, prompt={prompt_audio_22k.numel() / sample_rate:.2f}s + "
+        f"generated={generated.numel() / sample_rate:.2f}s). "
         f"audio_chunks={n_chunks}  flow_calls={n_flow_calls}  "
         f"prompt_tokens={n_prompt_tok}  chunk_ms={args.chunk_ms}  "
         f"token_overlap={token_overlap}  n_timesteps={args.n_timesteps}",
