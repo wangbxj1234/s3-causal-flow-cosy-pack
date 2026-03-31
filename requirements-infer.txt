@@ -17,3 +17,4 @@ wget>=3.2
 tqdm>=4.65.0
 pandas>=2.0
 pyarrow>=14.0
+gradio>=4.0
