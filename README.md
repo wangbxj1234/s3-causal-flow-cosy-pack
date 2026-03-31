@@ -6,8 +6,10 @@
 git clone https://github.com/wangbxj1234/s3-causal-flow-cosy-pack.git
 cd s3-causal-flow-cosy-pack
 
-python3 -m venv .venv && source .venv/bin/activate
+# conda (recommended)
+conda create -n s3flow python=3.10 -y && conda activate s3flow
 # 先安装 torch / torchaudio：https://pytorch.org/get-started/locally/
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu128
 pip install -r requirements-infer.txt
 export PYTHONPATH="$(pwd):$(pwd)/third_party/Matcha-TTS"
 ```
@@ -49,6 +51,19 @@ bash examples/infer_cross_speaker_example.sh /path/to/content.wav /path/to/speak
 python tools/infer_flow_reconstruct_causal_s3tok25hz.py \
   --wav /path/to/in.wav --out_wav /path/to/out.wav \
   --assets_dir pretrained_weights/CosyVoice-300M --n_timesteps 20
+```
+
+流式推理（streaming）：
+
+```bash
+python tools/infer_flow_streaming_s3tok25hz.py \
+  --wav /path/to/in.wav --out_wav /path/to/out.wav \
+  --chunk_ms 640 --n_timesteps 20
+
+# 跨说话人流式
+python tools/infer_flow_streaming_s3tok25hz.py \
+  --wav /path/to/content.wav --speaker_wav /path/to/speaker.wav \
+  --out_wav /path/to/out.wav --chunk_ms 640 --n_timesteps 20
 ```
 
 依赖：`pretrained_weights/s3tokenizer.pt`、`pretrained_weights/flow_torch_ddp/` 下 Flow 权重、`pretrained_weights/CosyVoice-300M/` 下 `campplus.onnx` 与 `hift.pt`。
